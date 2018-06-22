@@ -1,0 +1,437 @@
+@prefix :       <http://jubel.co/schema/> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml:    <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix gn:     <http://www.geonames.org/ontology#> .
+@prefix schema: <http://schema.org/> .
+@prefix geo:    <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@base           <http://jubel.co/schema/> .
+
+<http://jubel.co/schema>  a owl:Ontology ;
+                                          owl:versionIRI <http://jubel.co/schema/1.0> ;
+                                          owl:imports <http://www.geonames.org/ontology> ,
+                                                      <http://www.w3.org/2003/01/geo/wgs84_pos> ,
+                                                      <http://epiphanous.io/schemax> .
+
+#################################################################
+#    Classes
+#################################################################
+
+:CuratedAccommodation a owl:Class ;
+  rdfs:subClassOf :CuratedPlace , schema:Accommodation ;
+  rdfs:label "Curated Accommodation"@en ;
+  rdfs:comment "A curated place where people can stay overnight."@en
+.
+
+:CuratedActivity a owl:Class ;
+  rdfs:subClassOf :CuratedPlace ;
+  rdfs:label "Curated Activity"@en ;
+  rdfs:comment "A curated activity that tourists can engage in while visiting a place."@en
+.
+
+:CuratedDestination a owl:Class ;
+  rdfs:subClassOf :CuratedPlace ;
+  rdfs:label "Curated Destination"@en ;
+  rdfs:comment "A curated place that tourists can visit."@en
+.
+
+:CuratedPlace a owl:Class ;
+  rdfs:subClassOf schema:TouristAttraction , gn:Feature ;
+  rdfs:label "Curated Place"@en ;
+  rdfs:comment "Superclass of [CuratedDestination], [CuratedActivity] and [CuratedAccommodation]."@en
+.
+
+:recommendedStay a owl:ObjectProperty ;
+  rdfs:range :StayRange ;
+  rdfs:domain :CuratedPlace ;
+  rdfs:label "recommended stay"@en ;
+  rdfs:comment "A range of recommended durations for which to stay in the reference [CuratedPlace]."@en
+.
+
+:CurationInfo a owl:Class ;
+  rdfs:subClassOf schema:CreativeWork ; 
+  rdfs:label "Curation Info"@en ;
+  rdfs:comment "Information about a curated place."@en 
+.
+
+:StayRange a owl:Class ;
+  rdfs:label "Stay Range"@en ;
+  rdfs:comment "The minimum and maximum duration recommended to stay in a [CuratedPlace]."@en
+.
+
+:minStay a owl:DataTypeProperty ;
+  rdfs:domain :StayRange ;
+  rdfs:range xsd:duration ;
+  rdfs:label "min stay"@en ;
+  rdfs:comment "The minimum duration recommended to stay in a [CuratedPlace]."@en
+.
+
+:maxStay a owl:DataTypeProperty ;
+  rdfs:domain :StayRange ;
+  rdfs:range xsd:duration ;
+  rdfs:label "max stay"@en ;
+  rdfs:comment "The maximum duration recommended to stay in a [CuratedPlace]."@en
+.
+
+:TravelStyleSpecification a owl:Class ;
+  rdfs:subClassOf schema:LocationFeatureSpecification ;
+  rdfs:label "Travel Style Specification"@en ;
+  rdfs:comment "On a scale of 0 to 100, the degree to which a [CuratedPlace] appeals to a traveller of types listed in [TravelStyleName] and denoted by the name property.  The sum of all travel style specs should add up to 100."@en ;
+.
+
+:TravelStyleName a owl:Class ;
+  rdfs:subClassOf schema:Enumeration ;
+  rdfs:label "Travel Style Names"@en ;
+  rdfs:comment "The enumeration of travel style names."@en
+.
+
+:ActiveNature a :TravelStyleName ;
+  rdfs:label "Active Nature"@en ;
+  rdfs:comment "The thrill of the moment inspires us. We are limitless explorers, thriving by the edge of a cliff, the surf break, and in the darkness at the end of the tunnel. We are only scared of not feeling scared, because risk is the lifeline keeping us alive."@en
+.
+
+:Oceanist a :TravelStyleName ;
+  rdfs:label "Oceanist"@en ;
+  rdfs:comment "Turquoise waters and white sands is our happy place. The ocean's waves bring us in, while its tide sways us into a trance. We smell the ocean, feel the sky, and day dream on its sands. We all once came from the ocean and it is here that we belong."@en
+.
+
+:Culturist a :TravelStyleName ;
+  rdfs:label "Culturist"@en ;
+  rdfs:comment "We are modern day time travelers looking for our next stop in history. Experiencing traditions that have beaten the test of time with magnificent beauty and grace gives us goose bumps. Culture breathes such authentic life and color into the world that we wouldn’t dare to miss it."@en
+.
+
+:ChilledNature a :TravelStyleName ;
+  rdfs:label "Chilled Nature"@en ;
+  rdfs:comment "Nature is the opium of our tribe. Feeling connected with the purest places in this world is a peaceful euphoria.  Running water is music to our ears, shooting stars are fireworks to our eyes, and the earth under our feet is our sacred home. We know heaven is a place on earth."@en
+.
+
+:PartyPurist a :TravelStyleName ;
+  rdfs:label "Party Purist"@en ;
+  rdfs:comment "We are the children of the night — free spirited and young at heart. We live for building memories in amazing places. We cannot get enough of meeting new people; it energizes our spirits. Life is too short to live a boring one."@en
+.
+
+:AccommodationStyleSpecification a owl:Class ;
+  rdfs:subClassOf schema:LocationFeatureSpecification ;
+  rdfs:label "Accommodation Style Specification"@en ;
+  rdfs:comment "On a scale of 0 to 100, the degree to which a [CuratedPlace] contains accommodations of a given style, as listed in [AccommodationStyleName] and denoted by the name property. The sum of all accommodation style specs should add up to 100."@en ;
+.
+
+:AccommodationStyleName a owl:Class ;
+  rdfs:subClassOf schema:Enumeration ;
+  rdfs:label "Accommodation Style Name"@en ;
+  rdfs:comment "A list of accommodation styles."@en
+.
+
+:Hostel a :AccommodationStyleName ;
+  rdfs:label "Hostel"@en ;
+  rdfs:comment "Hostel accommodation style."@en
+.
+
+:BedAndBreakfast a :AccommodationStyleName ;
+  rdfs:label "Bed and Breakfast"@en ;
+  rdfs:comment "Bed and breakfast accommodation style."@en
+.
+
+:Hotel a :AccommodationStyleName ;
+  rdfs:label "Hotel"@en ;
+  rdfs:comment "Hotel accommodation style."@en
+.
+
+:Apartment a :AccommodationStyleName ;
+  rdfs:label "Apartment"@en ;
+  rdfs:comment "Apartment accommodation style."@en
+.
+
+:House a :AccommodationStyleName ;
+  rdfs:label "House"@en ;
+  rdfs:comment "House accommodation style."@en
+.
+
+:Lodge a :AccommodationStyleName ;
+  rdfs:label "Lodge"@en ;
+  rdfs:comment "Lodge accommodation style."@en
+.
+
+:Campground a :AccommodationStyleName ;
+  rdfs:label "Campground"@en ;
+  rdfs:comment "Campground accommodation style."@en
+.
+
+:TravelShockSpecification a owl:Class ;
+  rdfs:subClassOf schema:LocationFeatureSpecification ;
+  rdfs:label "Travel Shock Specification"@en ;
+  rdfs:comment "On a scale of 0 to 100, the degree to which the named characteristic of a [CuratedPlace] can negatively impact one's travel experience. These travel shocks are listed in [TravelShockName]. Each shock is independent. 0 is least. 100 is worst."@en 
+.
+
+:TravelShockName a owl:Class ;
+  rdfs:subClassOf schema:Enumeration ;
+  rdfs:label "Travel Shock Name"@en ;
+  rdfs:comment "A list of travel shocks."@en
+.
+
+:Crime a :TravelShockName ;
+  rdfs:label "Crime"@en ;
+  rdfs:comment "A crime travel shock."@en
+.
+
+:Food a :TravelShockName ;
+  rdfs:label "Food"@en ;
+  rdfs:comment "A food travel shock."@en
+.
+
+:Infrastructure a :TravelShockName ;
+  rdfs:label "Infrastructure"@en ;
+  rdfs:comment "An infrastructure travel shock."@en
+.
+
+:Language a :TravelShockName ;
+  rdfs:label "Language"@en ;
+  rdfs:comment "A language travel shock."@en
+.
+
+:LuxurySpecification a owl:Class ;
+  rdfs:subClassOf schema:LocationFeatureSpecification ;
+  rdfs:label "Luxury Specification"@en ;
+  rdfs:comment "On a scale of 0 to 100, the degree of luxury associated with a [CuratedPlace]. 0 is economy, and 100 is luxury."@en 
+.
+
+:TroddenSpecification a owl:Class ;
+  rdfs:subClassOf schema:LocationFeatureSpecification ;
+  rdfs:label "Trodden Specification"@en ;
+  rdfs:comment "On a scale of 0 to 100, the degree to which a [CuratedPlace] is on a well-trodden path of many tourists. 0 is off the beaten path, while 100 is well trodden."@en 
+.
+
+:DevelopmentLevelSpecification a owl:Class ;
+  rdfs:subClassOf schema:LocationFeatureSpecification ;
+  rdfs:label "Development Level Specification"@en ;
+  rdfs:comment "On a scale of 0 to 100, the degree of development associated with a [CuratedPlace]. 0 is isolated, and 100 is urban metropolis. Note that this is not an economic measure."@en 
+.
+
+:TravelScenerySpecification a owl:Class ;
+  rdfs:subClassOf schema:LocationFeatureSpecification ;
+  rdfs:label "Travel Scenery Specification"@en ;
+  rdfs:comment "On a scale of 0 to 100, the degree to which a [CuratedPlace] is associated with a kind of scenery, as listed in [TravelSceneryName] and denoted by the name property. 0 means devoid of the scenery type, and 100 means full of it. The sum of travel scenery specs across all kinds for a place should sum to 100."@en 
+.
+
+:TravelSceneryType a owl:Class ;
+  rdfs:subClassOf schema:Enumeration ;
+  rdfs:label "Travel Scenery Type"@en ;
+  rdfs:comment "A type of scenery associated with a curated place, like beach or forest."@en
+.
+
+:Beach a :TravelSceneryType ;
+  rdfs:label "Beach"@en ;
+  rdfs:comment "Beach scenery."@en
+.
+
+:Coastal a :TravelSceneryType ;
+  rdfs:label "Coastal"@en ;
+  rdfs:comment "Coastal scenery."@en
+.
+
+:Countryside a :TravelSceneryType ;
+  rdfs:label "Countryside"@en ;
+  rdfs:comment "Countryside scenery."@en
+.
+
+:Desert a :TravelSceneryType ;
+  rdfs:label "Desert"@en ;
+  rdfs:comment "Desert scenery."@en
+.
+
+:Forest a :TravelSceneryType ;
+  rdfs:label "Forest"@en ;
+  rdfs:comment "Forest scenery."@en
+.
+
+:Jungle a :TravelSceneryType ;
+  rdfs:label "Jungle"@en ;
+  rdfs:comment "Jungle scenery."@en
+.
+
+:Lake a :TravelSceneryType ;
+  rdfs:label "Lake"@en ;
+  rdfs:comment "Lake scenery."@en
+.
+
+:Mountain a :TravelSceneryType ;
+  rdfs:label "Mountain"@en ;
+  rdfs:comment "Mountain scenery."@en
+.
+
+:Plains a :TravelSceneryType ;
+  rdfs:label "Plains"@en ;
+  rdfs:comment "Plains scenery."@en
+.
+
+:Snow a :TravelSceneryType ;
+  rdfs:label "Snow"@en ;
+  rdfs:comment "Snow scenery."@en
+.
+
+:Urban a :TravelSceneryType ;
+  rdfs:label "Urban"@en ;
+  rdfs:comment "Urban scenery."@en
+.
+
+:TravelSeasonSpecification a owl:Class ;
+  rdfs:subClassOf schema:LocationFeatureSpecification ;
+  rdfs:label "Travel Season Specification"@en ;
+  rdfs:comment "A travel season specification, indicating when a particular kind of season occurs in a [CuratedPlace]."@en
+.
+
+:TravelSeason a owl:Class ;
+  rdfs:subClassOf schema:StructuredValue ;
+  rdfs:label "Travel Season"@en ;
+  rdfs:comment "Definition of a travel season."@en
+.
+
+:TravelSeasonType a owl:Class ;
+  rdfs:subClassOf schema:Enumeration ;
+  rdfs:label "Travel Season Type"@en ;
+  rdfs:comment "A travel season type."@en 
+.
+
+:HighSeason a :TravelSeasonType ;
+  rdfs:label "High Season"@en ;
+  rdfs:comment "A period when tourists travel most to a curated place."@en
+.
+
+:LowSeason a :TravelSeasonType ;
+  rdfs:label "Low Season"@en ;
+  rdfs:comment "A period when tourists don't usually travel to a curated place."@en
+.
+
+:ShoulderSeason a :TravelSeasonType ;
+  rdfs:label "Shoulder Season"@en ;
+  rdfs:comment "A period when tourists sometimes travel to a curated place."@en
+.
+
+:start a owl:DataTypeProperty ;
+  rdfs:domain :TravelSeason ;
+  rdfs:range xsd:gMonthDay ;
+  rdfs:label "Start"@en ;
+  rdfs:comment "Start of a travel season."@en
+.
+
+:end a owl:DataTypeProperty ;
+  rdfs:domain :TravelSeason ;
+  rdfs:range xsd:gMonthDay ;
+  rdfs:label "End"@en ;
+  rdfs:comment "End of a travel season."@en
+.
+
+:duration a owl:DataTypeProperty ;
+  rdfs:domain :TravelSeason ;
+  rdfs:range xsd:duration ;
+  rdfs:label "Duration"@en ;
+  rdfs:comment "Duration of a travel season."@en
+.
+
+:ScorableAlternative a owl:Class ;
+  rdfs:subClassOf schema:CreativeWork ;
+  rdfs:label "Scorable Alternative"@en ;
+  rdfs:comment "An alternative curated destination, accommodation, activity, itinerary, route or route segment that may be considered by a travel planner."@en
+.
+
+:CuratedDestinationAlternative a owl:Class ;
+  rdfs:subClassOf :ScorableAlternative ;
+  rdfs:label "Curated Destination Alternative"@en ;
+  rdfs:comment "An alternative curated destination."@en
+.
+
+:CuratedAccommodationAlternative a owl:Class ;
+  rdfs:subClassOf :ScorableAlternative ;
+  rdfs:label "Curated Accommodation Alternative"@en ;
+  rdfs:comment "An alternative curated accommodation."@en
+.
+
+:CuratedActivityAlternative a owl:Class ;
+  rdfs:subClassOf :ScorableAlternative ;
+  rdfs:label "Curated Activity Alternative"@en ;
+  rdfs:comment "An alternative curated activity."@en
+.
+
+:ItineraryAlternative a owl:Class ;
+  rdfs:subClassOf :ScorableAlternative ;
+  rdfs:label "Itinerary Alternative"@en ;
+  rdfs:comment "An alternative itinerary."@en
+.
+
+:RouteAlternative a owl:Class ;
+  rdfs:subClassOf :ScorableAlternative ;
+  rdfs:label "Route Alternative"@en ;
+  rdfs:comment "An alternative route."@en
+.
+
+:RouteSegmentAlternative a owl:Class ;
+  rdfs:subClassOf :ScorableAlternative ;
+  rdfs:label "Route Segment Alternative"@en ;
+  rdfs:comment "An alternative route segment."@en
+.
+
+:TravelMode a owl:Class ;
+  rdfs:subClassOf schema:Enumeration ;
+  rdfs:label "Travel Mode"@en ;
+  rdfs:comment "A mode travel."@en
+.
+
+:ByAir a :TravelMode ;
+  rdfs:label "By Air"@en ;
+  rdfs:comment "Travel by air."@en
+.
+
+:Train a :TravelMode ;
+  rdfs:label "By Train"@en ;
+  rdfs:comment "Travel by trains."@en
+.
+
+:ByBus a :TravelMode ;
+  rdfs:label "By Bus"@en ;
+  rdfs:comment "Travel by bus."@en
+.
+
+:ByCar a :TravelMode ;
+  rdfs:label "By Car"@en ;
+  rdfs:comment "Travel by car."@en
+.
+
+:ByBike a :TravelMode ;
+  rdfs:label "By Bike"@en ;
+  rdfs:comment "Travel by bike."@en
+.
+
+:ByFoot a :TravelMode ;
+  rdfs:label "By Foot"@en ;
+  rdfs:comment "Travel by foot."@en
+.
+
+:mode a owl:ObjectProperty ;
+  rdfs:domain :RouteSegmentAlternative ;
+  rdfs:range :TravelMode ;
+  rdfs:label "Mode"@en ;
+  rdfs:comment "Mode of travel."@en
+.
+
+:parent a owl:ObjectProperty ;
+  rdfs:domain :ScorableAlternative ;
+  rdfs:range :ScorableAlternative ;
+  rdfs:label "Parent"@en ;
+  rdfs:comment "A parent scorable alternative."@en
+.
+
+:curatedPlace a owl:ObjectProperty ;
+  rdfs:domain :ScorableAlternative ;
+  rdfs:range :CuratedPlace ;
+  rdfs:label "Curated Place"@en ;
+  rdfs:comment "Curated place associated with a scorable alternative."@en
+.
+
+:nearby a owl:ObjectProperty ;
+  rdfs:domain :CuratedPlace ;
+  rdfs:range :CuratedPlace ;
+  sh:maxCount 999
+.
