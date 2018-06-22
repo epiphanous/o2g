@@ -32,7 +32,6 @@ libraryDependencies += "com.typesafe" % "config" % v.config
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging"                 % v.logging,
   "ch.qos.logback"             %  "logback-classic"               % v.logback
-
 )
 
 lazy val root = (project in file(".")).
@@ -43,6 +42,12 @@ lazy val root = (project in file(".")).
   )
 
 
+assembly / test := {}
 
+assembly / assemblyMergeStrategy := {
+  case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first
+  case x =>
+    val oldStrategy = (assembly / assemblyMergeStrategy).value
+    oldStrategy(x)
+}
 
-        
