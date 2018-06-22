@@ -4,12 +4,15 @@ o2g converts an OWL ontology file (in ttl format) to a GraphQL schema.
 
 ## Get Started
 
-```bash
-$ ./build.sh
-```
+  - Download and unzip the latest release
+  - Copy `o2g-assembly-X.X.X.jar` release binary somewhere
+  - Copy the `o2g` script into your path
+  - Define an environment variable called `O2G_JAR` pointing to the jar location
+
+Now you can run `o2g` in a repo where you're developing your graphql schema.
 
 ```bash
-$ java -jar target/scala-2.12/o2g-assembly-1.0.0.jar --help
+$ o2g --help
 o2g 1.0.0
 Usage: o2g [options]
 
@@ -28,13 +31,3 @@ Usage: o2g [options]
   -v, --version            prints out program version
 ```
 
-It's sensible to write a script to run o2g and to work outside of the repo when using it to develop graphql schemas.
-To do this, copy the jar file somewhere (`O2G_JAR`) and write a script like this:
-
-```bash
-#!/usr/bin/env bash
-
-: ${O2G_JAR?"Please set O2G_JAR to point at the o2g jar location"}
-
-java -jar $O2G_JAR $@
-```

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+: ${O2G_JAR?"Please set O2G_JAR to point at the o2g jar location"}
+
+java -jar $O2G_JAR $@
