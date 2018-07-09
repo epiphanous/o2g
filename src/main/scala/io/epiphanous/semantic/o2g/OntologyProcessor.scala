@@ -101,8 +101,8 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   }
 
   /** load all input ontologies */
-  val ontology = loadOntology("prefixes.ttl", conf.catalogXml)
-  conf.inputs.foreach(x => ontology.addAll(loadOntology(x, conf.catalogXml)))
+  val ontology = loadOntology(conf.inputs.head, conf.catalogXml)
+  conf.inputs.tail.foreach(x => ontology.addAll(loadOntology(x, conf.catalogXml)))
 
   /** our output print writer */
   val writer = Option(conf.out) match {

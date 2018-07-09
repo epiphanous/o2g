@@ -23,8 +23,6 @@ object Conf {
 
   def fromConfig() = {
     Conf(
-      inputs = config.getStringList("input").asScala.toList,
-      out = config.getString("output"),
       catalogXml = config.getString("catalog"),
       inverseFieldWhiteList = config.getStringList("inverse").asScala.toList,
       defaultNamespaceIri = config.getString("default.namespace.iri"),
