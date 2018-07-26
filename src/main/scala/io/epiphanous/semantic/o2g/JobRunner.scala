@@ -1,9 +1,12 @@
 package io.epiphanous.semantic.o2g
 
+import java.io.File
+
 import com.typesafe.scalalogging.LazyLogging
 import scopt._
 
 import scala.collection.mutable
+
 
 /**
   * Created by nextdude on 7/16/17.

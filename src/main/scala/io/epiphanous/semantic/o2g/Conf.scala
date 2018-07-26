@@ -1,6 +1,9 @@
 package io.epiphanous.semantic.o2g
 
+import java.io.File
+
 import com.typesafe.config.ConfigFactory
+
 import collection.JavaConverters._
 
 /**
