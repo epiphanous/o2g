@@ -54,6 +54,11 @@ object JobRunner extends LazyLogging {
       .maxOccurs(1)
       .text("The default namespace IRI.")
 
+    opt[Boolean]('l',"local-names").action((local,conf) => conf.copy(useLocalNames = local))
+        .optional()
+        .maxOccurs(1)
+        .text("Use local names where possible, leaving off the ugly prefixes")
+
     help("help").text("prints this usage message").abbr("h")
     version("version").text("prints out program version").abbr("v")
   }

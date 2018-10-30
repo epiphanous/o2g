@@ -18,7 +18,8 @@ case class Conf(inputs: Seq[String] = List.empty,
   catalogXml: String = "catalog-v001.xml",
   inverseFieldWhiteList: Seq[String] = List.empty,
   defaultNamespaceIri: String = "http://epiphanous.io/schema",
-  defaultNamespacePrefix: String = "epiph"
+  defaultNamespacePrefix: String = "epiph",
+  useLocalNames:Boolean = false
 )
 
 object Conf {

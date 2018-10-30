@@ -101,6 +101,28 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     XMLSchema.STRING -> "String",
     XMLSchema.INT -> "Int",
     XMLSchema.INTEGER -> "Int",
+    XMLSchema.LONG -> "Long",
+    XMLSchema.FLOAT -> "Float",
+    XMLSchema.DECIMAL -> "Float",
+    XMLSchema.DOUBLE -> "Float",
+    XMLSchema.ANYURI -> "URL",
+    XMLSchema.DATE -> "Date",
+    XMLSchema.DATETIME -> "DateTime",
+    XMLSchema.TIME -> "Time",
+    XMLSchema.DURATION -> "Duration",
+    XMLSchema.GDAY -> "Day",
+    XMLSchema.GMONTH -> "Month",
+    XMLSchema.GYEAR -> "Year",
+    XMLSchema.GYEARMONTH -> "YearMonth",
+    XMLSchema.GMONTHDAY -> "MonthDay"
+  )
+
+  val BUILT_IN_SCALARS = Map(
+    XMLSchema.BOOLEAN -> "Boolean",
+    XMLSchema.ID -> "ID",
+    XMLSchema.STRING -> "String",
+    XMLSchema.INT -> "Int",
+    XMLSchema.INTEGER -> "Int",
     XMLSchema.FLOAT -> "Float",
     XMLSchema.DECIMAL -> "Float",
     XMLSchema.DOUBLE -> "Float"
@@ -409,7 +431,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   }
 
   def emitScalars(): Unit = {
-    SCALAR_TYPES.filterNot(SCALAR_TYPE_MAP.contains).foreach(t => {
+    SCALAR_TYPES.filterNot(BUILT_IN_SCALARS.contains).foreach(t => {
       blankLine()
       val typeIRI = genIRI(t)
       emitLine(s"# $t")
@@ -673,7 +695,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
       }_") => SCALAR_TYPE_MAP.getOrElse(iri, prefixedString)
       case p if List("O_", "I_").contains(p) => prefixedString
       case _ if !hasPrefix => s"<$iri>"
-      case _ => localString
+      case _ => prefixedString //wouldn't it be nice to just use localString
     }
   }
 

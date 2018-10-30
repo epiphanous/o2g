@@ -1,7 +1,8 @@
 name := "o2g"
 organization := "io.epiphanous"
-version := "1.0.2"
+version := "1.0.4"
 scalaVersion := "2.12.6"
+
 
 val v = {
   object versions {
