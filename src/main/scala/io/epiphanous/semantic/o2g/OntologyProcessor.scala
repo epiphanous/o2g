@@ -469,7 +469,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
          |
          |type Connection {
          |  edges: [Edge]!
-         |  moreEdges((filter:String, sortBy:String, first:Int, after:String, last:Int, before:String): Connection!
+         |  moreEdges(filter:String, sortBy:String, first:Int, after:String, last:Int, before:String): Connection!
          |  pageInfo: PageInfo!
          |}
          |""".stripMargin.trim)
