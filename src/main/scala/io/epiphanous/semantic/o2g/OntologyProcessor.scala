@@ -460,29 +460,25 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
          |type PageInfo {
          |  hasNextPage: Boolean!
          |  hasPreviousPage: Boolean!
-         |}""".stripMargin.trim)
+         |}
+         |
+         |type Edge {
+         |  cursor: String!
+         |  edge: U_NodeObject!
+         |}
+         |
+         |type Connection {
+         |  edges: [Edge]!
+         |  moreEdges((filter:String, sortBy:String, first:Int, after:String, last:Int, before:String): Connection!
+         |  pageInfo: PageInfo!
+         |}
+         |""".stripMargin.trim)
 
-    sortByLocalName(connectionTypes).foreach(t => {
-      val iri = genIRI(fieldTypes(t))
-      val edgeType = s"${iri}_Edge"
-      val connType = s"${iri}_Connection"
-      blankLine()
-      emitLine(
-        s"""
-           |# [$iri] edge in [$connType]
-           |type $edgeType {
-           |  cursor: String!
-           |  edge: $iri!
-           |}
-           |
-           |# Connection to [$iri] collection.
-           |type $connType {
-           |  edges: [$edgeType]!
-           |  moreEdges(filter:String, sortBy:String, first:Int, after:String, last:Int, before:String): $connType!
-           |  pageInfo: PageInfo!
-           |}
-        """.stripMargin.trim)
-    })
+    val labels = sortByLocalName(connectionTypes).map(t => genIRI(fieldTypes(t)))
+
+    blankLine()
+    emitLine(s"# A union of ${labels.mkString(", ")}")
+    emitLine(s"union U_NodeObject = ${labels.mkString(" | ")}")
   }
 
   def emitInterfaces(): Unit = {
