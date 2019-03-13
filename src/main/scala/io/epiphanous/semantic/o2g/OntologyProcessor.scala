@@ -458,16 +458,19 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
          |
          |# A simple indicator whether the current connection has more pages available
          |type PageInfo {
+         |  startCursor: String
+         |  endCursor: String
          |  hasNextPage: Boolean!
          |  hasPreviousPage: Boolean!
          |}
          |
          |type Edge {
          |  cursor: String!
-         |  edge: U_NodeObject!
+         |  node: U_NodeObject!
          |}
          |
          |type Connection {
+         |  totalCount: Int!
          |  edges: [Edge]!
          |  moreEdges(filter:String, sortBy:String, first:Int, after:String, last:Int, before:String): Connection!
          |  pageInfo: PageInfo!
