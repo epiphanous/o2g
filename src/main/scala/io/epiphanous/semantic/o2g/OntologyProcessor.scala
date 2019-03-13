@@ -730,7 +730,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   }
 
   case object CONNECTION extends GQLType {
-    override def __(n: String, t: String, a: String = "") = _f(n, s"${t}_Connection!", a)
+    override def __(n: String, t: String, a: String = "") = _f(n, s"Connection! # $t", a)
   }
 
 }
