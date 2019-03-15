@@ -48,18 +48,21 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
 
   /** schema.org namespace (as a string) */
   val SDO_NAMESPACE = "http://schema.org/"
+
   /** schema.org namespace (as a SimpleNamespace) */
-  val SDO_NS        = new SimpleNamespace("schema", SDO_NAMESPACE)
+  val SDO_NS = new SimpleNamespace("schema", SDO_NAMESPACE)
 
   /** good relations namespace (as a string) */
   val GR_NAMESPACE = "http://purl.org/goodrelations/v1#"
+
   /** good relations namespace (as a SimpleNamespace) */
-  val GR_NS        = new SimpleNamespace("gr", GR_NAMESPACE)
+  val GR_NS = new SimpleNamespace("gr", GR_NAMESPACE)
 
   /** shacl namespace (as a string) */
   val SH_NAMESPACE = "http://www.w3.org/ns/shacl#"
+
   /** shacl namesapce (as a SimpleNamespace) */
-  val SH_NS        = new SimpleNamespace("sh", SH_NAMESPACE)
+  val SH_NS = new SimpleNamespace("sh", SH_NAMESPACE)
 
   /** sh:minCount IRI */
   val SH_MIN_COUNT = vf.createIRI(SH_NAMESPACE, "minCount")
@@ -74,59 +77,53 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   val CONNECTION_CARDINALITY = 999
 
   /** simple types that need to be expanded into objects */
-  val SCALAR_TYPES = List(
-    XMLSchema.ANYURI,
-    XMLSchema.ID,
-    XMLSchema.BOOLEAN,
-    XMLSchema.DATE,
-    XMLSchema.DATETIME,
-    XMLSchema.DECIMAL,
-    XMLSchema.DOUBLE,
-    XMLSchema.DURATION,
-    XMLSchema.FLOAT,
-    XMLSchema.INTEGER,
-    XMLSchema.LONG,
-    XMLSchema.STRING,
-    XMLSchema.TIME,
-    XMLSchema.GMONTHDAY,
-    XMLSchema.GDAY,
-    XMLSchema.GMONTH,
-    XMLSchema.GYEAR,
-    XMLSchema.GYEARMONTH
-  )
+  val SCALAR_TYPES = List(XMLSchema.ANYURI,
+                          XMLSchema.ID,
+                          XMLSchema.BOOLEAN,
+                          XMLSchema.DATE,
+                          XMLSchema.DATETIME,
+                          XMLSchema.DECIMAL,
+                          XMLSchema.DOUBLE,
+                          XMLSchema.DURATION,
+                          XMLSchema.FLOAT,
+                          XMLSchema.INTEGER,
+                          XMLSchema.LONG,
+                          XMLSchema.STRING,
+                          XMLSchema.TIME,
+                          XMLSchema.GMONTHDAY,
+                          XMLSchema.GDAY,
+                          XMLSchema.GMONTH,
+                          XMLSchema.GYEAR,
+                          XMLSchema.GYEARMONTH)
 
-  val SCALAR_TYPE_MAP = Map(
-    XMLSchema.BOOLEAN -> "Boolean",
-    XMLSchema.ID -> "ID",
-    XMLSchema.STRING -> "String",
-    XMLSchema.INT -> "Int",
-    XMLSchema.INTEGER -> "Int",
-    XMLSchema.LONG -> "Long",
-    XMLSchema.FLOAT -> "Float",
-    XMLSchema.DECIMAL -> "Float",
-    XMLSchema.DOUBLE -> "Float",
-    XMLSchema.ANYURI -> "URL",
-    XMLSchema.DATE -> "Date",
-    XMLSchema.DATETIME -> "DateTime",
-    XMLSchema.TIME -> "Time",
-    XMLSchema.DURATION -> "Duration",
-    XMLSchema.GDAY -> "Day",
-    XMLSchema.GMONTH -> "Month",
-    XMLSchema.GYEAR -> "Year",
-    XMLSchema.GYEARMONTH -> "YearMonth",
-    XMLSchema.GMONTHDAY -> "MonthDay"
-  )
+  val SCALAR_TYPE_MAP = Map(XMLSchema.BOOLEAN -> "Boolean",
+                            XMLSchema.ID -> "ID",
+                            XMLSchema.STRING -> "String",
+                            XMLSchema.INT -> "Int",
+                            XMLSchema.INTEGER -> "Int",
+                            XMLSchema.LONG -> "Long",
+                            XMLSchema.FLOAT -> "Float",
+                            XMLSchema.DECIMAL -> "Float",
+                            XMLSchema.DOUBLE -> "Float",
+                            XMLSchema.ANYURI -> "URL",
+                            XMLSchema.DATE -> "Date",
+                            XMLSchema.DATETIME -> "DateTime",
+                            XMLSchema.TIME -> "Time",
+                            XMLSchema.DURATION -> "Duration",
+                            XMLSchema.GDAY -> "Day",
+                            XMLSchema.GMONTH -> "Month",
+                            XMLSchema.GYEAR -> "Year",
+                            XMLSchema.GYEARMONTH -> "YearMonth",
+                            XMLSchema.GMONTHDAY -> "MonthDay")
 
-  val BUILT_IN_SCALARS = Map(
-    XMLSchema.BOOLEAN -> "Boolean",
-    XMLSchema.ID -> "ID",
-    XMLSchema.STRING -> "String",
-    XMLSchema.INT -> "Int",
-    XMLSchema.INTEGER -> "Int",
-    XMLSchema.FLOAT -> "Float",
-    XMLSchema.DECIMAL -> "Float",
-    XMLSchema.DOUBLE -> "Float"
-  )
+  val BUILT_IN_SCALARS = Map(XMLSchema.BOOLEAN -> "Boolean",
+                             XMLSchema.ID -> "ID",
+                             XMLSchema.STRING -> "String",
+                             XMLSchema.INT -> "Int",
+                             XMLSchema.INTEGER -> "Int",
+                             XMLSchema.FLOAT -> "Float",
+                             XMLSchema.DECIMAL -> "Float",
+                             XMLSchema.DOUBLE -> "Float")
 
   /** number of lines required in a block before we emit an end of block comment */
   val END_COMMENT_THRESHOLD = 10
@@ -160,15 +157,16 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   /**
     * Grab the list of prefixes
     */
-  val DEFAULT_PREFIX                 = "default:"
-  val INVERSE_PREFIX                 = "inverse_"
+  val DEFAULT_PREFIX = "default:"
+  val INVERSE_PREFIX = "inverse_"
   val prefixes0: Map[String, String] = (ontology.getNamespaces.asScala + GR_NS + SCALAR_OBJECT_NS + UNION_NS +
     INTERFACE_NS)
     .map(ns => {
       val prefix = if (ns.getPrefix.equals("")) conf.defaultNamespacePrefix else ns.getPrefix
       ns.getName -> (prefix + "_")
-    }).toMap
-  val prefixes                       = prefixes0 ++
+    })
+    .toMap
+  val prefixes = prefixes0 ++
     prefixes0.map(x => (INVERSE_PREFIX + x._1, INVERSE_PREFIX + x._2)) +
     (DEFAULT_PREFIX -> "s_")
 
@@ -185,12 +183,19 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   })
 
   /** a map of all values for each enumeration type */
-  val enumValuesMap = subclasses(sdo("Enumeration")).map(t => {
-    val ev = ontology.filter(null, RDF.TYPE, t).subjects().asScala.map(v => v.asInstanceOf[IRI]).toSet
-    val evFromComment = Selector.select("li", Jsoup.parse(comment(t), t.getNamespace).body()).asScala.toSet
-      .map((e: Element) => e.text()).map(vf.createIRI)
-    t -> (ev ++ evFromComment)
-  }).toMap[IRI, Set[IRI]].filterNot(_._2.isEmpty)
+  val enumValuesMap = subclasses(sdo("Enumeration"))
+    .map(t => {
+      val ev = ontology.filter(null, RDF.TYPE, t).subjects().asScala.map(v => v.asInstanceOf[IRI]).toSet
+      val evFromComment = Selector
+        .select("li", Jsoup.parse(comment(t), t.getNamespace).body())
+        .asScala
+        .toSet
+        .map((e: Element) => e.text())
+        .map(vf.createIRI)
+      t -> (ev ++ evFromComment)
+    })
+    .toMap[IRI, Set[IRI]]
+    .filterNot(_._2.isEmpty)
 
   /** all enumeration types */
   val enumerationTypes = enumValuesMap.keySet
@@ -201,18 +206,22 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   /**
     * Grab the interfaces (that is, any objects that are the subclasses of some subject)
     */
-  val interfaces = ontology.filter(null, RDFS.SUBCLASSOF, null).objects().asScala
-    .map(_.asInstanceOf[IRI]).toSet -- enumerationTypes
+  val interfaces = ontology
+    .filter(null, RDFS.SUBCLASSOF, null)
+    .objects()
+    .asScala
+    .map(_.asInstanceOf[IRI])
+    .toSet -- enumerationTypes
 
   /**
     * default fields are the ones we add to the model for every type, including
     * id, --typename, rdfs_label, and rdfs_comment
     */
-  val defaultFields: Map[IRI, DefaultField] = Map(
-    "id" -> DefaultField(XMLSchema.ANYURI, "Unique identifier", isRequired = true),
-    "name" -> DefaultField(XMLSchema.STRING, "The name for this thing."),
-    "description" -> DefaultField(XMLSchema.STRING, "The description of this thing.")
-  ).map(t => (vf.createIRI(DEFAULT_PREFIX + t._1), t._2))
+  val defaultFields: Map[IRI, DefaultField] =
+    Map("id" -> DefaultField(XMLSchema.ANYURI, "Unique identifier", isRequired = true),
+        "name" -> DefaultField(XMLSchema.STRING, "The name for this thing."),
+        "description" -> DefaultField(XMLSchema.STRING, "The description of this thing."))
+      .map(t => (vf.createIRI(DEFAULT_PREFIX + t._1), t._2))
 
   //    Map(
   //    "id" -> DefaultField(XMLSchema.STRING, "The iri for this object."),
@@ -226,15 +235,21 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   /** a map to hold the fields for each type */
   val typeFields0: Map[IRI, Set[IRI]] = fields
     .foldLeft(Map.empty[IRI, Set[IRI]])((z: Map[IRI, Set[IRI]], field) => {
-      z ++ ontology.filter(field, RDFS.DOMAIN, null).objects().asScala.toList.flatMap {
-        case typeIRI: IRI => List(typeIRI)
-        case bnode: BNode =>
-          val head = ontology.filter(bnode, OWL.UNIONOF, null).objects().asScala.head.asInstanceOf[Resource]
-          RDFCollections.asValues(ontology, head, new util.ArrayList[Value]()).asScala.map(_.asInstanceOf[IRI]).toList
-      }
+      z ++ ontology
+        .filter(field, RDFS.DOMAIN, null)
+        .objects()
+        .asScala
+        .toList
+        .flatMap {
+          case typeIRI: IRI => List(typeIRI)
+          case bnode: BNode =>
+            val head = ontology.filter(bnode, OWL.UNIONOF, null).objects().asScala.head.asInstanceOf[Resource]
+            RDFCollections.asValues(ontology, head, new util.ArrayList[Value]()).asScala.map(_.asInstanceOf[IRI]).toList
+        }
         .map(typeIRI => {
           typeIRI -> (z.getOrElse(typeIRI, defaultFields.keySet) + field)
-        }).toMap
+        })
+        .toMap
     })
 
   val RDFS_LITERAL = vf.createIRI(UNION_NAMESPACE, SCALAR_TYPES.map(genIRI).mkString("_OR_"))
@@ -248,7 +263,11 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     .foldLeft((defaultFields.mapValues(_.fieldType), Map.empty[IRI, List[IRI]]))((z, field) => {
       val (ft: Map[IRI, IRI], u: Map[IRI, List[IRI]]) = z
       val ranges = ontology.filter(field, RDFS.RANGE, null).objects().asScala.toList
-      val rangesOfSuperProperties = ontology.filter(field, RDFS.SUBPROPERTYOF, null).objects().asScala.toList
+      val rangesOfSuperProperties = ontology
+        .filter(field, RDFS.SUBPROPERTYOF, null)
+        .objects()
+        .asScala
+        .toList
         .flatMap(x => {
           ontology.filter(x.asInstanceOf[IRI], RDFS.RANGE, null).objects().asScala.toList
         })
@@ -256,13 +275,17 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
 
       (eitherRanges.headOption match {
         case Some(x) => x
-        case None => RDFS_LITERAL
+        case None    => RDFS_LITERAL
       }) match {
         case typeIRI: IRI => (ft + (field -> typeIRI), u + (typeIRI -> List(typeIRI)))
         case bnode: BNode =>
           val head = ontology.filter(bnode, OWL.UNIONOF, null).objects().asScala.head.asInstanceOf[Resource]
-          val ranges = RDFCollections.asValues(ontology, head, new util.ArrayList[Value]()).asScala
-            .map(_.asInstanceOf[IRI]).toList.sortBy(_.getLocalName)
+          val ranges = RDFCollections
+            .asValues(ontology, head, new util.ArrayList[Value]())
+            .asScala
+            .map(_.asInstanceOf[IRI])
+            .toList
+            .sortBy(_.getLocalName)
           val unionKey = ranges.map(genIRI).mkString("_OR_")
           val unionRanges = ranges
             .map(iri => if (isScalarType(iri)) vf.createIRI(SCALAR_OBJECT_NAMESPACE, genIRI(iri)) else iri)
@@ -271,17 +294,19 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
       }
     })
 
-  val fieldCardinality: Map[IRI, (Int, Int)] = fields.map(f => {
-    val minCount = ontology.filter(f, SH_MIN_COUNT, null).objects().asScala.toList.headOption match {
-      case Some(c) => c.stringValue().toInt
-      case _ => DEFAULT_CARDINALITY._1
-    }
-    val maxCount = ontology.filter(f, SH_MAX_COUNT, null).objects().asScala.toList.headOption match {
-      case Some(c) => c.stringValue().toInt
-      case _ => DEFAULT_CARDINALITY._2
-    }
-    f -> (minCount, maxCount)
-  }).toMap
+  val fieldCardinality: Map[IRI, (Int, Int)] = fields
+    .map(f => {
+      val minCount = ontology.filter(f, SH_MIN_COUNT, null).objects().asScala.toList.headOption match {
+        case Some(c) => c.stringValue().toInt
+        case _       => DEFAULT_CARDINALITY._1
+      }
+      val maxCount = ontology.filter(f, SH_MAX_COUNT, null).objects().asScala.toList.headOption match {
+        case Some(c) => c.stringValue().toInt
+        case _       => DEFAULT_CARDINALITY._2
+      }
+      f -> (minCount, maxCount)
+    })
+    .toMap
 
   val connectionTypes = fieldCardinality.filter { case (_, (_, x)) => x == CONNECTION_CARDINALITY }.keys.toSet
 
@@ -300,21 +325,26 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   val unionIRIToFieldIRIsFilteredToWhiteList: Map[IRI, Set[IRI]] =
     unionIRIToFieldIRIs.mapValues(x => x.filter(y => conf.inverseFieldWhiteList.contains(y.stringValue)))
 
-  val fieldIRIToInverseFieldIRI: Map[IRI, IRI]      = fieldTypes0FilteredToWhiteList.keys
+  val fieldIRIToInverseFieldIRI: Map[IRI, IRI] = fieldTypes0FilteredToWhiteList.keys
     .map(x => {
       (x, vf.createIRI(INVERSE_PREFIX + x.getNamespace, x.getLocalName))
-    }).toMap
-  val inverseFieldIRIToFieldIRI: Map[IRI, IRI]      = fieldIRIToInverseFieldIRI.map(_.swap)
+    })
+    .toMap
+  val inverseFieldIRIToFieldIRI: Map[IRI, IRI] = fieldIRIToInverseFieldIRI.map(_.swap)
   val typeIRIToInverseFieldIRIs: Map[IRI, Set[IRI]] = typeIRIToUnionIRIs
-    .mapValues(x => x.flatMap(unionIRIToFieldIRIsFilteredToWhiteList)
-      .flatMap(fieldIRIToInverseFieldIRI.get))
+    .mapValues(
+      x =>
+        x.flatMap(unionIRIToFieldIRIsFilteredToWhiteList)
+          .flatMap(fieldIRIToInverseFieldIRI.get)
+    )
   val inverseFieldIRIToTypeIRIs: Map[IRI, Set[IRI]] =
-    typeFields0FilteredToWhiteList.values.flatten.map(x =>
-      (
-        vf.createIRI(INVERSE_PREFIX + x.getNamespace, x.getLocalName),
-        typeFields0FilteredToWhiteList.toList.filter(_._2.contains(x)).map(_._1).toSet
+    typeFields0FilteredToWhiteList.values.flatten
+      .map(
+        x =>
+          (vf.createIRI(INVERSE_PREFIX + x.getNamespace, x.getLocalName),
+           typeFields0FilteredToWhiteList.toList.filter(_._2.contains(x)).map(_._1).toSet)
       )
-    ).toMap
+      .toMap
 
   val inverseFieldIRIToTypeIRIs2: Map[IRI, (IRI, List[IRI])] = inverseFieldIRIToTypeIRIs.mapValues(x => {
     val ranges = x.toList.sortBy(_.getLocalName)
@@ -325,43 +355,58 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     }
   })
 
-  val inverseFieldTypes0              = inverseFieldIRIToTypeIRIs2.mapValues(_._1)
-  val inverseUnions0                  = inverseFieldIRIToTypeIRIs2.values.toMap
-  val typeFields: Map[IRI, Set[IRI]]  = typeFields0.map(e => (
-    e._1, e._2 ++ typeIRIToInverseFieldIRIs.getOrElse(e._1, Set.empty)
-  ))
-  val fieldTypes: Map[IRI, IRI]       = fieldTypes0 ++ inverseFieldTypes0
-  val unions    : Map[IRI, List[IRI]] = (unions0 ++ inverseUnions0 ++ builtInUnions).filter(_._2.size > 1)
+  val inverseFieldTypes0 = inverseFieldIRIToTypeIRIs2.mapValues(_._1)
+  val inverseUnions0 = inverseFieldIRIToTypeIRIs2.values.toMap
+  val typeFields: Map[IRI, Set[IRI]] =
+    typeFields0.map(e => (e._1, e._2 ++ typeIRIToInverseFieldIRIs.getOrElse(e._1, Set.empty)))
+  val fieldTypes: Map[IRI, IRI] = fieldTypes0 ++ inverseFieldTypes0
+  val unions: Map[IRI, List[IRI]] = (unions0 ++ inverseUnions0 ++ builtInUnions).filter(_._2.size > 1)
 
   /**
     * Grab our list of types (any subjects that have an rdf type, excluding blank nodes, fields, enumeration types and
     * enumeration values)
     */
-  val types         =
-    ontology.filter(null, RDF.TYPE, null).subjects().asScala.filterNot(_.isInstanceOf[BNode]).map(_.asInstanceOf[IRI])
+  val types =
+    ontology
+      .filter(null, RDF.TYPE, null)
+      .subjects()
+      .asScala
+      .filterNot(_.isInstanceOf[BNode])
+      .map(_.asInstanceOf[IRI])
       .toSet -- fields -- enumerationTypes -- enumValues
+
   /**
     * Get direct parents of each type
     */
-  val parents       = types.map(t => {
-    val p = ontology.filter(t, RDFS.SUBCLASSOF, null).objects().asScala.map(_.asInstanceOf[IRI]).toSet
-      .intersect(interfaces)
-    t -> p
-  }).toMap
+  val parents = types
+    .map(t => {
+      val p = ontology
+        .filter(t, RDFS.SUBCLASSOF, null)
+        .objects()
+        .asScala
+        .map(_.asInstanceOf[IRI])
+        .toSet
+        .intersect(interfaces)
+      t -> p
+    })
+    .toMap
+
   /** The column to wrap comments at */
-  val WRAP_LENGTH   = 78
-  val valueFactory  = SimpleValueFactory.getInstance()
+  val WRAP_LENGTH = 78
+  val valueFactory = SimpleValueFactory.getInstance()
   val remarkOptions = Options.markdown()
-  val remark        = new Remark(remarkOptions)
-  val INDENT        = "  "
+  val remark = new Remark(remarkOptions)
+  val INDENT = "  "
+
   /**
     * Track the number of lines we emit
     */
-  var emittedLines  = 0
+  var emittedLines = 0
+
   /**
     * Track the starting line of the current stanza we're about to emit
     */
-  var startLines    = 0
+  var startLines = 0
 
   /**
     * load our ontology (including nested imports)
@@ -376,10 +421,12 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     val imports = ontology.filter(null, OWL.IMPORTS, null).objects().asScala.map(_.asInstanceOf[IRI]).toSet
     val uriMapping = getCatalog(catalogXml)
     imports.foreach(ontIRI => {
-      uriMapping.get(ontIRI.toString).foreach(fileName => {
-        logger.info(s"Loading $fileName...")
-        ontology.addAll(loadOntology(fileName, catalogXml))
-      })
+      uriMapping
+        .get(ontIRI.toString)
+        .foreach(fileName => {
+          logger.info(s"Loading $fileName...")
+          ontology.addAll(loadOntology(fileName, catalogXml))
+        })
     })
     ontology
   }
@@ -403,9 +450,8 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     * @param localName the localName of the subject IRI
     * @return IRI
     */
-  def sdo(localName: String): IRI = {
+  def sdo(localName: String): IRI =
     vf.createIRI(SDO_NAMESPACE, localName)
-  }
 
   def run(): Unit = {
     emitHeader()
@@ -418,25 +464,27 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     close()
   }
 
-  def blankLine(numLines: Int = 1): Unit = {
-    1 to numLines foreach { _ => emitLine("") }
-  }
+  def blankLine(numLines: Int = 1): Unit =
+    1 to numLines foreach { _ =>
+      emitLine("")
+    }
 
   def emitHeader(): Unit = {
-    emitLine(
-      s"""# GraphQL Schema for ${conf.inputs.mkString(", ")}
+    emitLine(s"""# GraphQL Schema for ${conf.inputs.mkString(", ")}
          |#
          |# Generated by: ${BuildInfo.name} ${BuildInfo.version}
          |#           on: $nowAsISO""".stripMargin)
   }
 
   def emitScalars(): Unit = {
-    SCALAR_TYPES.filterNot(BUILT_IN_SCALARS.contains).foreach(t => {
-      blankLine()
-      val typeIRI = genIRI(t)
-      emitLine(s"# $t")
-      emitLine(s"scalar $typeIRI")
-    })
+    SCALAR_TYPES
+      .filterNot(BUILT_IN_SCALARS.contains)
+      .foreach(t => {
+        blankLine()
+        val typeIRI = genIRI(t)
+        emitLine(s"# $t")
+        emitLine(s"scalar $typeIRI")
+      })
     val seen = mutable.Set.empty[String]
     SCALAR_TYPES.foreach(t => {
       val typeIRI = genIRI(t)
@@ -451,8 +499,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   }
 
   def emitConnections(): Unit = {
-    emitLine(
-      """|###########################################################
+    emitLine("""|###########################################################
          |# Connections (for paging through large collections)
          |###########################################################
          |
@@ -477,10 +524,10 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
          |}
          |""".stripMargin.trim)
 
-    val labels = sortByLocalName(connectionTypes).map(t => genIRI(fieldTypes(t)))
-
+    val labels =
+      sortByLocalName(connectionTypes.flatMap(t => unions.getOrElse(t, List(t)))).map(t => genIRI(fieldTypes(t)))
     blankLine()
-    emitLine(s"# A union of ${labels.mkString(", ")}")
+    emitLine(s"# A union of connection nodes")
     emitLine(s"union U_NodeObject = ${labels.mkString(" | ")}")
   }
 
@@ -516,8 +563,15 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     sortByLocalName(types).foreach(t => {
       if (prefixes.contains(t.getNamespace)) {
         val sups: Set[IRI] = superclasses(t)
-        val impl = if (sups.nonEmpty) Some(parents(t).map(iri => vf.createIRI(INTERFACE_NAMESPACE, genIRI(iri)))
-          .map(genIRI).mkString("implements ", " & ", " ")) else None
+        val impl =
+          if (sups.nonEmpty)
+            Some(
+              parents(t)
+                .map(iri => vf.createIRI(INTERFACE_NAMESPACE, genIRI(iri)))
+                .map(genIRI)
+                .mkString("implements ", " & ", " ")
+            )
+          else None
         startBlock("type", t, None, impl)
         val writtenFields = mutable.Set.empty[IRI]
         writtenFields ++= fieldWriter(t, defaultFields.keySet)
@@ -546,22 +600,23 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     })
   }
 
-  def isScalarType(iri: IRI): Boolean = {
+  def isScalarType(iri: IRI): Boolean =
     SCALAR_TYPES.contains(iri) || enumerationTypes.contains(iri)
-  }
 
-  def isOptionalProp(iri: IRI): Boolean = {
+  def isOptionalProp(iri: IRI): Boolean =
     !isRequiredProp(iri)
-  }
 
-  def isRequiredProp(iri: IRI): Boolean = {
+  def isRequiredProp(iri: IRI): Boolean =
     fieldCardinality.getOrElse(iri, DEFAULT_CARDINALITY)._1 > 0
-  }
 
   def sortByLocalName(set: Set[IRI]): List[IRI] = set.toList.sortBy(_.getLocalName)
 
-  def startBlock(blockType: String, blockThing: IRI, wrapperNamespace: Option[String] = None,
-    blockSuffix: Option[String] = None): Unit = {
+  def startBlock(
+    blockType: String,
+    blockThing: IRI,
+    wrapperNamespace: Option[String] = None,
+    blockSuffix: Option[String] = None
+  ): Unit = {
     startLines = emittedLines
     blankLine()
     emitLine(genComment(mdComment(blockThing)))
@@ -572,29 +627,33 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
 
   def endBlock(blockSuffix: Option[String] = None): Unit = {
     val wantsComment = (emittedLines - startLines) > END_COMMENT_THRESHOLD
-    val endComment = if (wantsComment && blockSuffix.nonEmpty)
-      s" # end ${blockSuffix.get}" else ""
+    val endComment =
+      if (wantsComment && blockSuffix.nonEmpty)
+        s" # end ${blockSuffix.get}"
+      else ""
     emitLine(s"}$endComment")
   }
 
-  def enumValuesWriter(values: Set[IRI]): Unit = {
+  def enumValuesWriter(values: Set[IRI]): Unit =
     emitLine(s"  ${sortByLocalName(values).map(genIRI).mkString("\n  ")}")
-  }
 
-  def getGqlType(field: IRI, fieldType: IRI, isReqOpt: Option[Boolean] = None, isListOpt: Option[Boolean] = None)
-  : GQLType = {
+  def getGqlType(
+    field: IRI,
+    fieldType: IRI,
+    isReqOpt: Option[Boolean] = None,
+    isListOpt: Option[Boolean] = None
+  ): GQLType = {
     if (isConnectionProp(field)) CONNECTION
     else {
       val (isList, isReq) = if (isDefault(field)) {
         (isListOpt.getOrElse(false), isReqOpt.getOrElse(false))
-      }
-      else {
+      } else {
         (isListProp(field), isRequiredProp(field))
       }
       if (isList) {
         if (isReq) LIST_REQ else LIST_OPT
-      }
-      else if (isReq) REQ_SCALAR else OPT_SCALAR
+      } else if (isReq) REQ_SCALAR
+      else OPT_SCALAR
     }
   }
 
@@ -616,23 +675,23 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
       val (gqlType, name, args, typeName, comment) =
         if (isDefault(f)) {
           val df = defaultFields(f)
-          (getGqlType(f, df.fieldType, Some(df.isRequired), Some(df.isList)), genIRI(f), "", genIRI(df.fieldType),
-            genComment(df.comment, INDENT))
-        }
-        else if (isInverse(f)) {
+          (getGqlType(f, df.fieldType, Some(df.isRequired), Some(df.isList)),
+           genIRI(f),
+           "",
+           genIRI(df.fieldType),
+           genComment(df.comment, INDENT))
+        } else if (isInverse(f)) {
           val inverseF = inverseFieldIRIToFieldIRI(f)
           val inverseT = fieldTypes(inverseF)
-          val typeF = fieldTypes(f)
-          val typeN = genIRI(typeF)
+//          val typeF = fieldTypes(f)
+//          val typeN = genIRI(typeF)
           val cmt = mdComment(inverseF) //s"${mdComment(inverseF)} from [$typeN]($typeF)"
           val gt = getGqlType(inverseF, inverseT)
           (gt, genIRI(inverseF), genArgs(gt), genIRI(inverseT), genComment(cmt, INDENT))
-        }
-        else {
+        } else {
           val typeF = fieldTypes(f)
           val gt = getGqlType(f, typeF)
-          (gt, genIRI(f), genArgs(gt), genIRI(typeF),
-            genComment(mdComment(f), INDENT)) //s"${mdComment(f)} From [${genIRI(aType)}]($aType)", "  "))
+          (gt, genIRI(f), genArgs(gt), genIRI(typeF), genComment(mdComment(f), INDENT)) //s"${mdComment(f)} From [${genIRI(aType)}]($aType)", "  "))
         }
 
       emitLine(comment)
@@ -647,12 +706,15 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
       "(filter:String, sortBy:String, first:Int, after:String, last:Int, before:String)"
     else ""
 
-  def genComment(s: String, indent: String = "") = {
+  def genComment(s: String, indent: String = "") =
     /*WordUtils.wrap(s, WRAP_LENGTH)*/ s.replaceAll("(?m)^", s"$indent# ")
-  }
 
   def comment(someType: IRI): String = {
-    ontology.filter(someType, RDFS.COMMENT, null).objects().asScala.map(_.stringValue())
+    ontology
+      .filter(someType, RDFS.COMMENT, null)
+      .objects()
+      .asScala
+      .map(_.stringValue())
       .headOption
       .getOrElse(label(someType))
       .replaceAll("\\s+", " ")
@@ -666,10 +728,14 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     remark.convert(s)
   }
 
-  def label(someType: IRI): String = {
-    ontology.filter(someType, RDFS.LABEL, null).objects().asScala.map(_.stringValue()).headOption
+  def label(someType: IRI): String =
+    ontology
+      .filter(someType, RDFS.LABEL, null)
+      .objects()
+      .asScala
+      .map(_.stringValue())
+      .headOption
       .getOrElse(someType.toString)
-  }
 
   def superclasses(someType: IRI): Set[IRI] = {
     val p = parents.getOrElse(someType, Set())
@@ -684,17 +750,13 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   def genIRI(iri: IRI) = {
     val hasPrefix = prefixes.contains(iri.getNamespace)
     val prefix = if (hasPrefix) prefixes(iri.getNamespace) else iri.getNamespace
-    val localString = s"${
-      iri.getLocalName.replaceAll("-", "_")
-    }"
+    val localString = s"${iri.getLocalName.replaceAll("-", "_")}"
     val prefixedString = s"$prefix$localString"
     prefix match {
-      case p if p.equalsIgnoreCase(s"${
-        XMLSchema.PREFIX
-      }_") => SCALAR_TYPE_MAP.getOrElse(iri, prefixedString)
-      case p if List("O_", "I_").contains(p) => prefixedString
-      case _ if !hasPrefix => s"<$iri>"
-      case _ => prefixedString //wouldn't it be nice to just use localString
+      case p if p.equalsIgnoreCase(s"${XMLSchema.PREFIX}_") => SCALAR_TYPE_MAP.getOrElse(iri, prefixedString)
+      case p if List("O_", "I_").contains(p)                => prefixedString
+      case _ if !hasPrefix                                  => s"<$iri>"
+      case _                                                => prefixedString //wouldn't it be nice to just use localString
     }
   }
 
@@ -737,4 +799,3 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   }
 
 }
-
