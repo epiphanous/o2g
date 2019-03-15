@@ -2,6 +2,7 @@
 *.iml
 *.class
 *.log
+test/
 target/
 project/target/
 project/boot/
