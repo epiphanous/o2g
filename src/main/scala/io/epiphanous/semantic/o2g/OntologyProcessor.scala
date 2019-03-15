@@ -526,8 +526,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
 
     val labels =
       sortByLocalName(
-        connectionTypes
-          .flatMap(t => unions.getOrElse(fieldTypes(t), List(t)))
+        connectionTypes.map(ft => fieldTypes(ft)).flatMap(t => unions.getOrElse(t, List(t)))
       ).map(genIRI)
     blankLine()
     emitLine(s"# A union of connection nodes")
