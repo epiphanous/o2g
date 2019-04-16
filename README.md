@@ -4,13 +4,13 @@ o2g converts an OWL ontology file (in ttl format) to a GraphQL schema.
 
 ## Current Release
 
-The current release is [version 1.0.6](https://github.com/nextdude/o2g/releases/tag/release-1.0.6)
+The current release is [version 1.0.7](https://github.com/nextdude/o2g/releases/tag/release-1.0.7)
 
 ## Get Started
 
   - Download
-    - the [o2g script](https://github.com/nextdude/o2g/releases/download/release-1.0.6/o2g)
-    - the [o2g jar file](https://github.com/nextdude/o2g/releases/download/release-1.0.6/o2g-assembly-1.0.6.jar)
+    - the [o2g script](https://github.com/nextdude/o2g/releases/download/release-1.0.7/o2g)
+    - the [o2g jar file](https://github.com/nextdude/o2g/releases/download/release-1.0.7/o2g-assembly-1.0.7.jar)
   - Move the jar file somewhere sensible under your home directory
   - Define an environment variable called `O2G_JAR` pointing to the jar location
   - Copy the `o2g` script into your path and make sure its executable
@@ -19,7 +19,7 @@ Now you can run `o2g` in a repo where you're developing your graphql schema.
 
 ```bash
 $ o2g --help
-o2g 1.0.6
+o2g 1.0.7
 Usage: o2g [options]
 
   -i, --input <ontology-file>
@@ -33,7 +33,7 @@ Usage: o2g [options]
   -p, --default-prefix <prefix>
                            The default namespace prefix.
   -n, --default-iri <iri>  The default namespace IRI.
-  -l, --local-names 
+  -l, --local-names
                            Use local names where possible, leaving off the ugly prefixes
   -h, --help               prints this usage message
   -v, --version            prints out program version
