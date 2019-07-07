@@ -206,12 +206,17 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   /**
     * Grab the interfaces (that is, any objects that are the subclasses of some subject)
     */
+
+  val NODE_INTERFACE_NAME = "Node"
+  val NODE_INTERFACE_COMMENT = "An object with unique identifying properties"
+  val NODE_INTERFACE_IRI = vf.createIRI(DEFAULT_PREFIX + NODE_INTERFACE_NAME)
+
   val interfaces = ontology
     .filter(null, RDFS.SUBCLASSOF, null)
     .objects()
     .asScala
     .map(_.asInstanceOf[IRI])
-    .toSet -- enumerationTypes
+    .toSet -- enumerationTypes + NODE_INTERFACE_IRI
 
   /**
     * default fields are the ones we add to the model for every type, including
@@ -226,15 +231,6 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
       vf.createIRI(SDO_NAMESPACE + "name") -> DefaultField(XMLSchema.STRING, "The name for this thing."),
       vf.createIRI(SDO_NAMESPACE + "description") -> DefaultField(XMLSchema.STRING, "The description of this thing.")
     )
-
-  //    Map(
-  //    "id" -> DefaultField(XMLSchema.STRING, "The iri for this object."),
-  //    "__typename" -> DefaultField(XMLSchema.STRING, "The typename for this object.")
-  //  ).map(t => (vf.createIRI(DEFAULT_PREFIX + t._1), t._2)) +
-  //    (vf.createIRI("http://www.w3.org/2000/01/rdf-schema#label") ->
-  //      DefaultField(XMLSchema.STRING, "The label for this object.")) +
-  //    (vf.createIRI("http://www.w3.org/2000/01/rdf-schema#comment") ->
-  //      DefaultField(XMLSchema.STRING, "The comment for this object."))
 
   /** a map to hold the fields for each type */
   val typeFields0: Map[IRI, Set[IRI]] = fields
@@ -390,7 +386,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
         .asScala
         .map(_.asInstanceOf[IRI])
         .toSet
-        .intersect(interfaces)
+        .intersect(interfaces) + NODE_INTERFACE_IRI
       t -> p
     })
     .toMap
@@ -536,24 +532,35 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
          |  hasPreviousPage: Boolean!
          |}
          |
-         |type Edge {
+         |interface Edge {
          |  cursor: String!
-         |  node: U_NodeObject!
+         |  node: Node!
          |}
          |
-         |type Connection {
+         |interface Connection {
          |  totalCount: Int!
-         |  edges: [Edge]!
-         |  moreEdges(filter:String, sortBy:String, first:Int, after:String, last:Int, before:String): Connection!
          |  pageInfo: PageInfo!
+         |  edges: [Edge]!
          |}
          |""".stripMargin.trim)
 
     val labels =
       sortByLocalName(connectionTypes.map(ft => fieldTypes(ft)).flatMap(t => unions.getOrElse(t, List(t)))).map(genIRI)
-    blankLine()
-    emitLine(s"# A union of connection nodes")
-    emitLine(s"union U_NodeObject = ${labels.mkString(" | ")}")
+    labels.foreach(label => {
+      blankLine()
+      emitLine(s"# Connection of $label nodes")
+      emitLine(s"type ${label}_Connection implements Connection {")
+      emitLine( "  totalCount: Int!")
+      emitLine( "  pageInfo: PageInfo!")
+      emitLine(s"  edges: [${label}_Edge]!")
+      emitLine( "}")
+      blankLine()
+      emitLine(s"# $label edge node")
+      emitLine(s"type ${label}_Edge implements Edge {")
+      emitLine( "  cursor: String!")
+      emitLine(s"  node: $label")
+      emitLine( "}")
+    })
   }
 
   def emitInterfaces(): Unit = {
@@ -755,7 +762,9 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   }
 
   def label(someType: IRI): String =
-    ontology
+    if (someType.equals(NODE_INTERFACE_IRI))
+      NODE_INTERFACE_COMMENT
+    else ontology
       .filter(someType, RDFS.LABEL, null)
       .objects()
       .asScala
@@ -826,7 +835,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   }
 
   case object CONNECTION extends GQLType {
-    override def __(n: String, t: String, a: String = "", d: String = "") = _f(n, s"Connection! # $t", a, d)
+    override def __(n: String, t: String, a: String = "", d: String = "") = _f(n, s"${t}_Connection!", a, d)
   }
 
 }
