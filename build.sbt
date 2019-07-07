@@ -1,6 +1,6 @@
 name := "o2g"
 organization := "io.epiphanous"
-version := "1.0.7"
+version := "1.1.0"
 scalaVersion := "2.12.8"
 
 
