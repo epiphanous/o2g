@@ -373,7 +373,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
       .asScala
       .filterNot(_.isInstanceOf[BNode])
       .map(_.asInstanceOf[IRI])
-      .toSet -- fields -- enumerationTypes -- enumValues
+      .toSet -- fields -- enumerationTypes -- enumValues -- interfaces
 
   /**
     * Get direct parents of each type
