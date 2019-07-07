@@ -532,12 +532,12 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
          |  hasPreviousPage: Boolean!
          |}
          |
-         |interface Edge {
+         |interface I_Edge {
          |  cursor: String!
          |  node: Node!
          |}
          |
-         |interface Connection {
+         |interface I_Connection {
          |  totalCount: Int!
          |  pageInfo: PageInfo!
          |  edges: [Edge]!
@@ -549,14 +549,14 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     labels.foreach(label => {
       blankLine()
       emitLine(s"# Connection of $label nodes")
-      emitLine(s"type ${label}_Connection implements Connection {")
+      emitLine(s"type ${label}_Connection implements I_Connection {")
       emitLine( "  totalCount: Int!")
       emitLine( "  pageInfo: PageInfo!")
       emitLine(s"  edges: [${label}_Edge]!")
       emitLine( "}")
       blankLine()
       emitLine(s"# $label edge node")
-      emitLine(s"type ${label}_Edge implements Edge {")
+      emitLine(s"type ${label}_Edge implements I_Edge {")
       emitLine( "  cursor: String!")
       emitLine(s"  node: $label")
       emitLine( "}")
