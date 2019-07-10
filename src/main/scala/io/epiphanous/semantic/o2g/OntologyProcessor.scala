@@ -627,19 +627,11 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
       if (fields.nonEmpty && prefixes.contains(t.getNamespace)) {
         val impl =
           parents
-            .get(t)
-            .map(
-              iris =>
-                iris
-                  .map(iri => vf.createIRI(INTERFACE_NAMESPACE, genIRI(iri)))
-                  .map(genIRI)
-            )
-            .map(
-              iris =>
-                iris
-                  .mkString("implements ", " & ", " ")
-            )
-        startBlock("type", t, None, impl)
+            .getOrElse(t, Set.empty[IRI])
+            .map(iri => vf.createIRI(INTERFACE_NAMESPACE, genIRI(iri)))
+            .map(genIRI)
+            .mkString("implements ", " & ", " ")
+        startBlock("type", t, None, if (impl.isEmpty) None else Some(impl))
         fieldWriter(t, fields)
         endBlock()
       }
