@@ -6,7 +6,7 @@ scalaVersion := "2.12.8"
 
 val v = {
   object versions {
-    val rdf4j = "2.5.0"
+    val rdf4j = "2.5.3"
     val scopt = "3.7.1"
     val logback = "1.2.3"
     val logging = "3.9.2"

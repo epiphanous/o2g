@@ -14,10 +14,11 @@ import scala.collection.JavaConverters._
 case class Conf(
   inputs: Seq[String] = List.empty,
   out: String = "stdout",
-  catalogXml: String = "catalog-v001.xml",
-  inverseFieldWhiteList: Seq[String] = List.empty,
-  defaultNamespaceIri: String = "http://epiphanous.io/schema",
-  defaultNamespacePrefix: String = "epiph",
+  catalogXml: String,
+  inverseFieldWhiteList: List[String],
+  defaultNamespaceIri: String,
+  defaultNamespacePrefix: String,
+  defaultIdField: String = "_id",
   useLocalNames: Boolean = false)
 
 object Conf {
@@ -27,6 +28,7 @@ object Conf {
     Conf(catalogXml = config.getString("catalog"),
          inverseFieldWhiteList = config.getStringList("inverse").asScala.toList,
          defaultNamespaceIri = config.getString("default.namespace.iri"),
-         defaultNamespacePrefix = config.getString("default.namespace.prefix"))
+         defaultNamespacePrefix = config.getString("default.namespace.prefix"),
+         defaultIdField = config.getString("default.id.field"))
   }
 }
