@@ -587,9 +587,12 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
 
   def emitInterfaces(): Unit = {
     sortByLocalName(interfaces).foreach(t => {
-      startBlock("interface", t, Some(INTERFACE_NAMESPACE))
-      fieldWriter(t, allFields(t))
-      endBlock()
+      val fields = allFields(t)
+      if (fields.nonEmpty) {
+        startBlock("interface", t, Some(INTERFACE_NAMESPACE))
+        fieldWriter(t, allFields(t))
+        endBlock()
+      }
     })
   }
 
@@ -620,7 +623,8 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
 
   def emitTypes(): Unit = {
     sortByLocalName(types).foreach(t => {
-      if (prefixes.contains(t.getNamespace)) {
+      val fields = allFields(t)
+      if (fields.nonEmpty && prefixes.contains(t.getNamespace)) {
         val impl =
           parents
             .get(t)
@@ -636,7 +640,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
                   .mkString("implements ", " & ", " ")
             )
         startBlock("type", t, None, impl)
-        fieldWriter(t, allFields(t))
+        fieldWriter(t, fields)
         endBlock()
       }
     })
