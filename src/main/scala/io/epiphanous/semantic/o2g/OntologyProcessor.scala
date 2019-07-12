@@ -167,7 +167,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   val ID_PROPERTY = vf.createIRI(DEFAULT_NAMESPACE, conf.defaultIdField)
   Map(RDF.TYPE -> OWL.DATATYPEPROPERTY,
       RDFS.SUBPROPERTYOF -> vf.createIRI(SDO_NAMESPACE, "identifier"),
-      RDFS.RANGE -> XMLSchema.STRING,
+      RDFS.RANGE -> XMLSchema.ID,
       RDFS.DOMAIN -> OWL.THING,
       SH_MAX_COUNT -> vf.createLiteral(1),
       SH_MIN_COUNT -> vf.createLiteral(1),
@@ -527,17 +527,6 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
          |  hasNextPage: Boolean!
          |  hasPreviousPage: Boolean!
          |}
-         |
-         |interface I_Edge {
-         |  cursor: String!
-         |  node: I_owl_Thing!
-         |}
-         |
-         |interface I_Connection {
-         |  totalCount: Int!
-         |  pageInfo: PageInfo!
-         |  edges: [I_Edge]!
-         |}
          |""".stripMargin.trim)
 
     val labels =
@@ -549,16 +538,16 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
     labels.foreach(label => {
       blankLine()
       emitLine(s"# Connection of $label nodes")
-      emitLine(s"type ${label}_Connection implements I_Connection {")
+      emitLine(s"type ${label}Connection {")
       emitLine("  totalCount: Int!")
       emitLine("  pageInfo: PageInfo!")
-      emitLine(s"  edges: [${label}_Edge]!")
+      emitLine(s"  edges: [${label}Edge]!")
       emitLine("}")
       blankLine()
       emitLine(s"# $label edge node")
-      emitLine(s"type ${label}_Edge implements I_Edge {")
+      emitLine(s"type ${label}Edge {")
       emitLine("  cursor: String!")
-      emitLine(s"  node: $label")
+      emitLine(s"  node: $label!")
       emitLine("}")
     })
   }
@@ -602,10 +591,10 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   def emitTypes(): Unit = {
     sortByLocalName(types).foreach(t => {
       val fields = allFields(t)
+      val ifaces = superclasses(t)
       if (fields.nonEmpty && prefixes.contains(t.getNamespace)) {
         val implements =
-          parents
-            .getOrElse(t, Set.empty[IRI])
+          ifaces
             .filter(hasFields)
             .map(iri => vf.createIRI(INTERFACE_NAMESPACE, genIRI(iri)))
             .map(genIRI)
@@ -821,7 +810,7 @@ class OntologyProcessor(conf: Conf) extends LazyLogging {
   }
 
   case object CONNECTION extends GQLType {
-    override def __(n: String, t: String, a: String = "", d: String = "") = _f(n, s"${t}_Connection!", a, d)
+    override def __(n: String, t: String, a: String = "", d: String = "") = _f(n, s"${t}Connection!", a, d)
   }
 
 }
